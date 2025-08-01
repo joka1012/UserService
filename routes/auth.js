@@ -1,16 +1,20 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('./models/user');
+const User = require('../model/user');
+const cors = require('cors');
+const app = express();
+app.use(cors());
 
 const router = express.Router();
-const JWT_SECRET = 'dein_geheimes_token'; // in .env speichern
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Registrierung
 router.post('/register', async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    res.status(201).json({ message: 'User erstellt' });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '24h' });
+    res.status(201).json({ token });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -26,7 +30,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).send('Falsches Passwort');
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
