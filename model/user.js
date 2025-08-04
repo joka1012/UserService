@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
   price: { type: Number, default: 0 },
   cash: { type: Number, default: 0 },
   potato: { type: Number, default: 0 },
-  turns: { type: Number, default: 0 }
+  turns: { type: Number, default: 0 },
+  themes: { type: [String], default: [] },
+  activeTheme: { type: String, default: null }
 });
 
 // Passwort-Hashing vor dem Speichern

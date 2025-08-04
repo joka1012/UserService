@@ -65,9 +65,10 @@ app.put("/users/:id", authMiddleware, async (req, res) => {
   }
 });
 
+// Aktualisiere ingame Daten
 app.put("/me/game", authMiddleware, async (req, res) => {
   try {
-    const allowedFields = ["cash", "potato", "turns"];
+    const allowedFields = ["cash", "potato", "turns", "price", "activeTheme"];
     const update = {};
 
     // Nur erlaubte Felder updaten
@@ -91,6 +92,30 @@ app.put("/me/game", authMiddleware, async (req, res) => {
   }
 });
 
+// Request, um neues Theme zu speichern
+app.post("/me/themes/unlock", authMiddleware, async (req, res) => {
+  try {
+    const { theme } = req.body;
+    const validThemes = ["LaRatte", "Vitelotte", "Bleue-d-Artois"];
+
+    if (!validThemes.includes(theme)) {
+      return res.status(400).json({ error: "Ungültiges Theme" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $addToSet: { themes: theme } },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ error: "User nicht gefunden" });
+
+    res.json({ message: `"${theme}" freigeschaltet`, themes: user.themes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE
 app.delete("/users/:id", authMiddleware, async (req, res) => {
   try {
@@ -103,6 +128,4 @@ app.delete("/users/:id", authMiddleware, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server läuft auf http://localhost:${PORT}`)
-);
+app.listen(PORT, () => console.log("🚀 Server läuft auf"));
