@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   cash: { type: Number, default: 0 },
   potato: { type: Number, default: 0 },
   turns: { type: Number, default: 0 },
-  themes: { type: [String], default: [] },
+  themes: { type: [String], default: ["default"] },
   activeTheme: { type: String, default: null }
 });
 
